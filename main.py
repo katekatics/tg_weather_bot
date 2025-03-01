@@ -1,13 +1,17 @@
 import math
 import datetime
+import os
 import requests
-from aiogram import Bot, types
-from aiogram.dispatcher import Dispatcher
-from aiogram.utils import executor
+from aiogram import Bot, types, Dispatcher
+from aiogram.filters import CommandStart
+from dotenv import load_dotenv
 
-WEATHER_TOKEN = 'token'
-bot = Bot(token='BOT_TOKEN')
-dp = Dispatcher(bot)
+
+load_dotenv()
+TOKEN = os.getenv("BOT_TOKEN")
+WEATHER_TOKEN = os.getenv("WEATHER_TOKEN")
+bot = Bot(token=TOKEN)
+dp = Dispatcher()
 code_to_smile = {
     "Clear": "Ясно \U00002600",
     "Clouds": "Облачно \U00002601",
@@ -19,12 +23,12 @@ code_to_smile = {
 }
 
 
-@dp.message_handler(commands=["start"])
+@dp.message(CommandStart())
 async def start_command(message: types.Message):
     await message.reply("Привет! Напиши мне название города и я пришлю сводку погоды")
 
 
-@dp.message_handler()
+@dp.message()
 async def get_weather(message: types.Message):
     try:
         given_city = message.text
@@ -61,4 +65,4 @@ async def get_weather(message: types.Message):
         await message.reply("Проверьте название города!")
 
 if __name__ == "__main__":
-    executor.start_polling(dp)
+    dp.run_polling(bot)
